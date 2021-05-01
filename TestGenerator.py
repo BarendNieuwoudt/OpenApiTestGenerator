@@ -1,9 +1,9 @@
 # Barend Nieuwoudt, 2021
 
-import sys
+import sys, re
 import generator as gen
 from logger import Warning, Error, Info
-from loader import Yaml
+from loader import Yaml, Template
 
 paramaters = {}
 
@@ -50,9 +50,26 @@ def loadSpec(type):
 
 # ==================================================================================
 
+# Load the template file, from the provided or default path	
+def loadTemplate():
+	if Template.TEMPLATE in paramaters:
+		return str(Template.load(paramaters[Template.TEMPLATE]))
+	else:
+		return str(Template.load(Template.DEFAULT))
+
+# ==================================================================================
+		
+# Sanitize the string, remove special characters
+def sanitizeString(value):
+	return re.sub(r'/', '_', value)
+
+# ==================================================================================
+
 if __name__ == "__main__":
 	
 	setParameters(sys.argv)
+	
+	template = loadTemplate()
 	
 	data = {}
 	
@@ -61,11 +78,19 @@ if __name__ == "__main__":
 		Info.log(f"Performing {Yaml.YAML} load")
 		data = loadSpec(Yaml.YAML)
 	
-		# Test Code: Find a dictionary, and then find a value in that dictionary
+		# TODO: Test Code
 		paths = gen.getPaths(data)
 		
+		# Replace the summary for each path in the template, and print the testcase
 		for path in paths:
-			print(str(gen.getSummary(paths.get(path))))
+			methods = gen.getMethodsForPath(data, path)
+			for method in methods:
+				tempDict = {}
+				tempDict['method'] = method
+				tempDict['path'] = sanitizeString(path)
+				tempDict['summary'] = str(gen.getSummary(methods.get(method)))
+				tempDict['description'] = str(gen.findNodeByName(methods.get(method), 'description'))
+				print(str(gen.replaceInTemplate(template, tempDict)))
 		
 	if data == {}:
 		# Nothing was loaded

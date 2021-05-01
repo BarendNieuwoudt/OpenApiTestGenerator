@@ -2,8 +2,7 @@
 
 import yaml # pip install pyyaml
 import json
-from logger import Error
-from logger import Warning
+from logger import Error, Warning, Info
 
 class Yaml:
 
@@ -26,5 +25,18 @@ class Json:
 		try:
 			with open(str(path)) as file:
 				return json.load(file)
+		except:
+			Error.log(f"Could not load file {path}")
+			
+class Template:
+
+	TEMPLATE = 'template'
+	DEFAULT = 'template.txt'
+
+	# Load a .txt template file
+	def load(path):
+		try:
+			with open(str(path)) as file:
+				return file.read()
 		except:
 			Error.log(f"Could not load file {path}")

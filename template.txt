@@ -1,0 +1,7 @@
+/*
+ * {summary}
+ */
+@test
+public void testCase{path}_{method}() {
+	System.out.println('{description}');
+}

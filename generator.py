@@ -1,9 +1,14 @@
+import re
+
 # ==================================================================================
 
 # Utility methods for the common objects
 
 def getPaths(dictObject):
 	return findNodeByName(dictObject, 'paths')
+	
+def getMethodsForPath(dictObject, path):
+	return findNodeByName(findNodeByName(dictObject, 'paths'), path)
 	
 def getSummary(dictObject):
 	return findNodeByName(dictObject, 'summary')
@@ -31,3 +36,19 @@ def findNodeByName(dictObject, objName):
 	
 	# Nothing was found
 	return None
+
+# ==================================================================================
+
+# Replace template's placeholder with given values. As long as the keys in the 
+# replacements dictionary match {variables} in the template the values will be
+# replaced, and the updated template will be returned.
+def replaceInTemplate(template, replacements):
+
+	for key in replacements:
+		regex = re.compile('{' + f'{key}' + '}')
+		template = re.sub(regex, str(replacements.get(key)), template)
+		
+	return template
+	
+# ==================================================================================
+	
